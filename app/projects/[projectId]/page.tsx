@@ -219,18 +219,11 @@ export default function ProjectPage() {
       projectFiles.length > 0 &&
       projectFiles[0].file.project_id === projectId;
 
-    // Wait for project data to be loaded before compiling
-    const isReady =
-      content &&
-      filesMatchProject &&
-      projectData &&
-      !hasCompiledOnMount;
-
-    if (isReady) {
+    if (content && filesMatchProject && !hasCompiledOnMount) {
       setHasCompiledOnMount(true);
       handleCompile();
     }
-  }, [content, projectFiles, projectId, projectData, hasCompiledOnMount]);
+  }, [content, projectFiles, projectId, hasCompiledOnMount]);
 
   const handleEditorChange = (value: string) => {
     setContent(value);
