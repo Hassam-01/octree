@@ -284,7 +284,7 @@ export function SubscriptionStatus() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Change Plan
+                Manage Plan
               </a>
             </Button>
           </div>
