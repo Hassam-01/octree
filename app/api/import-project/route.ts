@@ -8,7 +8,7 @@ import {
 } from '@/lib/constants/file-types';
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
-const MAX_FILES = 100; // Maximum files per project
+const MAX_FILES = 1000; // Maximum files per project
 
 interface ExtractedFile {
   name: string; // Full relative path including folders (e.g., "figures/image.png")
