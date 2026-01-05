@@ -13,9 +13,15 @@ import { BillingSection } from '@/components/subscription/billing-section';
 import { EditProfileDialog } from '@/components/user/edit-profile-dialog';
 import { ChangePasswordDialog } from '@/components/user/change-password-dialog';
 import { EditorSettings } from '@/components/settings/editor-settings';
-import { User } from 'lucide-react';
+import { User, XCircle, AlertCircle } from 'lucide-react';
 
-export default async function SettingsPage() {
+interface SettingsPageProps {
+  searchParams: Promise<{ canceled?: string; error?: string }>;
+}
+
+export default async function SettingsPage({
+  searchParams,
+}: SettingsPageProps) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,6 +31,7 @@ export default async function SettingsPage() {
     redirect('/auth/login');
   }
 
+  const { canceled, error } = await searchParams;
   const userName = user?.user_metadata?.name ?? user?.email ?? null;
 
   return (
@@ -37,6 +44,21 @@ export default async function SettingsPage() {
             Manage your account and preferences
           </p>
         </div>
+        {canceled && (
+          <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <XCircle className="h-4 w-4" />
+            <p>Your checkout was canceled. No charges were made.</p>
+          </div>
+        )}
+        {error === 'checkout_failed' && (
+          <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            <AlertCircle className="h-4 w-4" />
+            <p>
+              Failed to create checkout session. Please try again or contact
+              support if the issue persists.
+            </p>
+          </div>
+        )}
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>

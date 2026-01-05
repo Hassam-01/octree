@@ -37,10 +37,18 @@ export function PaywallDialog({
   const handleSubscribe = async () => {
     setIsLoading(true);
     try {
-      window.open('https://buy.stripe.com/6oUdR9fyd8Sd6Cifd46oo00', '_blank');
-      onClose();
+      const response = await fetch('/api/checkout-session', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        const checkoutUrl = await response.text();
+        window.location.href = checkoutUrl;
+      } else {
+        console.error('Failed to create checkout session');
+      }
     } catch (error) {
-      console.error('Error redirecting to checkout:', error);
+      console.error('Error creating checkout session:', error);
     } finally {
       setIsLoading(false);
     }

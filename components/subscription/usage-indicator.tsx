@@ -3,11 +3,16 @@
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { CreditCard, Info } from 'lucide-react';
-import { FREE_DAILY_EDIT_LIMIT, PRO_MONTHLY_EDIT_LIMIT } from '@/data/constants';
-
-const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/6oUdR9fyd8Sd6Cifd46oo00';
+import {
+  FREE_DAILY_EDIT_LIMIT,
+  PRO_MONTHLY_EDIT_LIMIT,
+} from '@/data/constants';
 
 interface UsageIndicatorProps {
   className?: string;
@@ -27,6 +32,7 @@ interface UsageData {
 
 export function UpgradeButton() {
   const [usageData, setUsageData] = useState<UsageData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchUsageData = async () => {
@@ -47,24 +53,41 @@ export function UpgradeButton() {
     return () => window.removeEventListener('usage-update', handleUsageUpdate);
   }, []);
 
+  const handleSubscribe = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/checkout-session', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        const checkoutUrl = await response.text();
+        window.location.href = checkoutUrl;
+      } else {
+        console.error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!usageData) return null;
   if (usageData.hasUnlimitedEdits) return null;
   if (usageData.isPro) return null;
 
   return (
     <Button
-      asChild
       size="sm"
+      onClick={handleSubscribe}
+      disabled={isLoading}
       className="h-8 gap-1.5 bg-gradient-to-b from-primary-light to-primary px-3 text-white hover:from-primary-light/90 hover:to-primary/90"
     >
-      <a
-        href={STRIPE_CHECKOUT_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <CreditCard className="h-3.5 w-3.5" />
-        <span className="font-medium">Subscribe</span>
-      </a>
+      <CreditCard className="h-3.5 w-3.5" />
+      <span className="font-medium">
+        {isLoading ? 'Loading...' : 'Subscribe'}
+      </span>
     </Button>
   );
 }
@@ -141,14 +164,12 @@ export function UsageIndicator({ className }: UsageIndicatorProps) {
           ? `${monthlyEditCount}/${PRO_MONTHLY_EDIT_LIMIT}`
           : `${editCount}/${FREE_DAILY_EDIT_LIMIT}`}
       </Badge>
-      {(limitReached || monthlyLimitReached) ? (
+      {limitReached || monthlyLimitReached ? (
         <Tooltip>
           <TooltipTrigger asChild>
             <Info className="h-4 w-4 cursor-help text-neutral-500" />
           </TooltipTrigger>
-          <TooltipContent>
-            Please Subscribe to continue using AI
-          </TooltipContent>
+          <TooltipContent>Please Subscribe to continue using AI</TooltipContent>
         </Tooltip>
       ) : (
         <Info className="h-4 w-4 text-neutral-500" />
