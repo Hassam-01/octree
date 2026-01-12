@@ -6,6 +6,10 @@ import { createClient } from '@/lib/supabase/server';
 import { TablesInsert } from '@/database.types';
 import { getContentTypeByFilename } from '@/lib/constants/file-types';
 
+type UsageRecord = {
+  onboarding_completed: boolean | null;
+};
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const draftId = url.searchParams.get('draft');
@@ -25,26 +29,6 @@ export async function GET(request: NextRequest) {
       `/import?draft=${encodeURIComponent(draftId)}`
     );
     return NextResponse.redirect(loginUrl);
-  }
-
-  // Check if user has completed onboarding
-  type UsageRecord = {
-    onboarding_completed: boolean | null;
-  };
-
-  const { data: usageData } = await supabase
-    .from('user_usage')
-    .select('onboarding_completed')
-    .eq('user_id', user.id)
-    .maybeSingle<UsageRecord>();
-
-  if (!usageData?.onboarding_completed) {
-    const onboardingUrl = new URL('/onboarding', url.origin);
-    onboardingUrl.searchParams.set(
-      'next',
-      `/import?draft=${encodeURIComponent(draftId)}`
-    );
-    return NextResponse.redirect(onboardingUrl);
   }
 
   // Fetch draft
@@ -120,11 +104,20 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Delete draft (best effort)
   await (supabase
     .from('drafts' as any)
     .delete()
     .eq('id', draftId) as any);
+
+  const { data: usageData } = await supabase
+    .from('user_usage')
+    .select('onboarding_completed')
+    .eq('user_id', user.id)
+    .maybeSingle<UsageRecord>();
+
+  if (!usageData?.onboarding_completed) {
+    return NextResponse.redirect(new URL('/onboarding', url.origin));
+  }
 
   return NextResponse.redirect(new URL(`/projects/${project.id}`, url.origin));
 }
