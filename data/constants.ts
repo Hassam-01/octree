@@ -1,7 +1,7 @@
 // Subscription and usage limits
 export const FREE_DAILY_EDIT_LIMIT = 5;
 export const PRO_MONTHLY_EDIT_LIMIT = 500;
-export const PRO_SUBSCRIPTION_PRICE = 10; // USD per month
+export const PRO_SUBSCRIPTION_PRICE = 4.99;
 
 export const DEFAULT_LATEX_CONTENT = (title: string) => `\\documentclass{article}
 \\usepackage[utf8]{inputenc}

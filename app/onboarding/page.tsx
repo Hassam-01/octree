@@ -43,7 +43,7 @@ export default function OnboardingPage() {
   const [useCase, setUseCase] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isMonthly, setIsMonthly] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function OnboardingPage() {
       setIsSubmitting(true);
       try {
         const checkoutUrl = await createCheckoutSession({
-          annual: isAnnual,
+          annual: isMonthly,
           withTrial: false,
         });
         window.location.href = checkoutUrl;
@@ -224,25 +224,28 @@ export default function OnboardingPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center gap-2">
                 <Switch
-                  id="annual-switch"
-                  checked={isAnnual}
-                  onCheckedChange={setIsAnnual}
+                  id="monthly-switch"
+                  checked={isMonthly}
+                  onCheckedChange={setIsMonthly}
                 />
                 <Label
-                  htmlFor="annual-switch"
+                  htmlFor="monthly-switch"
                   className="cursor-pointer text-sm font-normal"
                 >
-                  Save 17% with an annual plan
+                  Save 50% with monthly billing
                 </Label>
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold">{isAnnual ? '$16.67' : '$19.99'}</p>
-                  <p className="text-sm text-muted-foreground">per month</p>
+                  <p className="text-3xl font-bold">{isMonthly ? '$2.49' : '$4.99'}</p>
+                  <p className="text-sm text-muted-foreground">per week</p>
                 </div>
-                {isAnnual && (
-                  <p className="text-xs text-muted-foreground">Billed annually</p>
+                {isMonthly && (
+                  <p className="text-xs text-muted-foreground">Billed monthly at $9.99/month</p>
+                )}
+                {!isMonthly && (
+                  <p className="text-xs text-muted-foreground">Billed weekly</p>
                 )}
               </div>
 
