@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef, useCallback } from 'react';
 import LogoCloud from '@/components/ui/logo-cloud';
 import { TestimonialCarousel } from './testimonial-carousel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,6 +65,48 @@ const useCases = [
 ];
 
 export function AuthMarketingSection() {
+  const [activeTab, setActiveTab] = useState('use-cases');
+  const [openDialogIndex, setOpenDialogIndex] = useState<number | null>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const preloadedVideos = useRef<Set<string>>(new Set());
+
+  // Preload all videos when Use Cases tab becomes active
+  useEffect(() => {
+    if (activeTab === 'use-cases') {
+      useCases.forEach((useCase) => {
+        if (!preloadedVideos.current.has(useCase.videoUrl)) {
+          // Create a video element to preload the video
+          const video = document.createElement('video');
+          video.preload = 'auto';
+          video.muted = true;
+          video.src = useCase.videoUrl;
+          // Start loading immediately
+          video.load();
+          preloadedVideos.current.add(useCase.videoUrl);
+        }
+      });
+    }
+  }, [activeTab]);
+
+  // Play video immediately when dialog opens
+  const handleDialogChange = useCallback((open: boolean, index: number) => {
+    if (open) {
+      setOpenDialogIndex(index);
+      // Small timeout to ensure the video element is mounted
+      setTimeout(() => {
+        const videoEl = videoRefs.current[index];
+        if (videoEl) {
+          videoEl.currentTime = 0;
+          videoEl.play().catch(() => {
+            // Autoplay might be blocked, user can click play
+          });
+        }
+      }, 50);
+    } else {
+      setOpenDialogIndex(null);
+    }
+  }, []);
+
   return (
     <div className="relative hidden w-1/2 bg-muted lg:flex lg:flex-col lg:p-12 overflow-hidden h-screen">
       <div
@@ -75,8 +118,21 @@ export function AuthMarketingSection() {
         }}
       />
 
+      {/* Hidden preload video elements - renders actual videos offscreen for faster playback */}
+      <div className="sr-only" aria-hidden="true">
+        {activeTab === 'use-cases' && useCases.map((useCase, index) => (
+          <video
+            key={`preload-${index}`}
+            src={useCase.videoUrl}
+            preload="auto"
+            muted
+            playsInline
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 flex flex-col h-full w-full max-w-md mx-auto justify-between py-12">
-        <Tabs defaultValue="use-cases" className="flex flex-col w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col w-full">
           {/* Tabs header - fixed at top */}
           <TabsList className="grid w-full grid-cols-2 shrink-0">
             <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
@@ -98,7 +154,11 @@ export function AuthMarketingSection() {
             >
               <div className="space-y-3 w-full">
                 {useCases.map((useCase, index) => (
-                  <Dialog key={index}>
+                  <Dialog 
+                    key={index} 
+                    open={openDialogIndex === index}
+                    onOpenChange={(open) => handleDialogChange(open, index)}
+                  >
                     <DialogTrigger asChild>
                       <div
                         className="group relative rounded-xl bg-gradient-to-t from-background to-background/80 backdrop-blur-sm p-3.5 transition-all hover:brightness-110 active:brightness-95 border border-zinc-950/25 shadow-md shadow-zinc-950/20 ring-1 ring-inset ring-white/20 cursor-pointer hover:-translate-y-0.5 hover:border-primary/30"
@@ -132,7 +192,7 @@ export function AuthMarketingSection() {
                         <div className="relative group/modal">
                           <VideoPlayer className="w-full overflow-hidden rounded-xl shadow-2xl bg-black aspect-video">
                             <VideoPlayerContent
-                              key={`video-${index}`}
+                              ref={(el) => { videoRefs.current[index] = el; }}
                               src={useCase.videoUrl}
                               playsInline
                               preload="auto"
@@ -144,7 +204,7 @@ export function AuthMarketingSection() {
                               style={{
                                 objectFit: 'contain',
                                 objectPosition: '50% 50%',
-                                transform: 'translateZ(0)', // Force GPU acceleration
+                                transform: 'translateZ(0)',
                                 imageRendering: 'auto',
                               }}
                             />
