@@ -205,9 +205,9 @@ export function DocumentPreview({ latex, title, onOpenInOctree, isCreatingProjec
                     disabled={isCompiling}
                 >
                     {isCompiling ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        <Download className="mr-2 h-4 w-4" />
+                        <Download className="h-4 w-4" />
                     )}
                     {isCompiling ? 'Compiling...' : 'Download PDF'}
                 </Button>
@@ -217,9 +217,9 @@ export function DocumentPreview({ latex, title, onOpenInOctree, isCreatingProjec
                     disabled={isCreatingProject}
                 >
                     {isCreatingProject ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        <ExternalLink className="mr-2 h-4 w-4" />
+                        <ExternalLink className="h-4 w-4" />
                     )}
                     Open in Octree
                 </Button>
