@@ -11,7 +11,7 @@ import {
   MediaTimeRange,
   MediaVolumeRange,
 } from 'media-chrome/react';
-import type { ComponentProps, CSSProperties } from 'react';
+import { forwardRef, type ComponentProps, type CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 
 export type VideoPlayerProps = ComponentProps<typeof MediaController>;
@@ -117,9 +117,10 @@ export const VideoPlayerMuteButton = ({
 
 export type VideoPlayerContentProps = ComponentProps<'video'>;
 
-export const VideoPlayerContent = ({
-  className,
-  ...props
-}: VideoPlayerContentProps) => (
-  <video className={cn('mt-0 mb-0', className)} {...(props as any)} />
+export const VideoPlayerContent = forwardRef<HTMLVideoElement, VideoPlayerContentProps>(
+  ({ className, ...props }, ref) => (
+    <video ref={ref} className={cn('mt-0 mb-0', className)} {...(props as any)} />
+  )
 );
+
+VideoPlayerContent.displayName = 'VideoPlayerContent';
