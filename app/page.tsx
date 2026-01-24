@@ -54,8 +54,8 @@ export default async function Dashboard() {
 
           <div className="flex items-center gap-2">
             <Link href="/generate">
-              <Button variant="outline" size="sm">
-                <Sparkles className="mr-2 h-4 w-4" />
+              <Button variant="outline-gradient" size="sm">
+                <Sparkles className="h-4 w-4" />
                 Generate with AI
               </Button>
             </Link>

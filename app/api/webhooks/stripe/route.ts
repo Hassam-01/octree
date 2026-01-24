@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     const supabase = createServiceClient();
 
     switch (event.type) {
+      case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted':
         const subscription = event.data.object as Stripe.Subscription;
@@ -99,10 +100,7 @@ export async function POST(request: Request) {
             .eq('user_id', userId);
 
           if (updateError) {
-            console.error(
-              'Failed to update subscription status:',
-              updateError
-            );
+            console.error('Failed to update subscription status:', updateError);
             throw updateError;
           }
 
