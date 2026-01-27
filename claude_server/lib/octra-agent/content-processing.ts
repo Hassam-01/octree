@@ -12,8 +12,7 @@ export interface ProjectFileContext {
 const MAX_FULL_CONTENT_FILES = 3;
 // Maximum total content size (in characters) to send
 const MAX_TOTAL_CONTENT_SIZE = 20000;
-// Maximum size per individual file (truncate if larger)
-const MAX_FILE_SIZE = 8000;
+
 
 /**
  * Parse LaTeX file to extract referenced files (via \input, \include, \bibliography, etc.)
@@ -215,7 +214,9 @@ export function buildSystemPrompt(
   textFromEditor?: string | null,
   selectionRange?: { startLineNumber: number; endLineNumber: number } | null,
   projectFiles?: ProjectFileContext[] | null,
-  currentFilePath?: string | null
+  currentFilePath?: string | null,
+  sessionSummary?: string | null,
+  lastInteraction?: { userRequest: string; assistantResponse: string } | null
 ): string {
   const validProjectFiles =
     projectFiles?.filter(
@@ -247,6 +248,33 @@ MULTI-FILE PROJECTS:
 - For edits to other files, ALWAYS specify: { ..., targetFile: 'filename.tex' }
 - Line numbers in targetFile edits refer to that file's line numbers.` : '';
 
+  // Build session context with both summary and last interaction for immediate memory
+  let sessionContext = '';
+  
+  if (sessionSummary || lastInteraction) {
+    sessionContext = `
+
+EDITING SESSION CONTEXT:`;
+    
+    if (sessionSummary) {
+      sessionContext += `
+Session summary (ongoing goals and changes):
+${sessionSummary}`;
+    }
+    
+    if (lastInteraction) {
+      sessionContext += `
+
+Last interaction:
+User: ${lastInteraction.userRequest}
+Assistant: ${lastInteraction.assistantResponse.substring(0, 500)}${lastInteraction.assistantResponse.length > 500 ? '...' : ''}`;
+    }
+    
+    sessionContext += `
+---
+Use this context to resolve references (e.g., "the table", "that figure") and understand what was just done.`;
+  }
+
   return `You are Octra, a LaTeX editing assistant. You edit LaTeX documents by calling the 'propose_edits' tool.
 
 ABSOLUTE RULE: For ANY editing request, you MUST:
@@ -258,7 +286,7 @@ You have THREE edit types:
 - INSERT: { editType: 'insert', position: { line: N }, content: '...', originalLineCount: 0 }
 - DELETE: { editType: 'delete', position: { line: N }, originalLineCount: M }
 - REPLACE: { editType: 'replace', position: { line: N }, content: '...', originalLineCount: M }
-${multiFileInstructions}
+${multiFileInstructions}${sessionContext}
 
 EXAMPLES:
 
