@@ -16,7 +16,7 @@ export interface AttachedFile {
   type: 'image' | 'document';
 }
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
 const ALLOWED_DOC_TYPES = new Set(['application/pdf']);
 
@@ -35,6 +35,15 @@ export function useGenerate() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserId(data.user.id);
     });
@@ -50,14 +59,21 @@ export function useGenerate() {
 
   const addFiles = useCallback((filesToCheck: File[]) => {
     const newFiles: AttachedFile[] = [];
+    const errors: string[] = [];
 
     for (const file of filesToCheck) {
-      if (file.size > MAX_FILE_SIZE) continue;
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name} is too large (max 10MB)`);
+        continue;
+      }
 
       const isImage = ALLOWED_IMAGE_TYPES.has(file.type);
       const isPdf = ALLOWED_DOC_TYPES.has(file.type) || file.name.toLowerCase().endsWith('.pdf');
 
-      if (!isImage && !isPdf) continue;
+      if (!isImage && !isPdf) {
+        errors.push(`${file.name} is not a supported file type`);
+        continue;
+      }
 
       newFiles.push({
         id: crypto.randomUUID(),
@@ -65,6 +81,12 @@ export function useGenerate() {
         preview: isImage ? URL.createObjectURL(file) : null,
         type: isImage ? 'image' : 'document',
       });
+    }
+
+    if (errors.length > 0) {
+      setError(errors.join('. '));
+    } else {
+      setError(null);
     }
 
     setAttachedFiles((prev) => [...prev, ...newFiles]);
@@ -113,6 +135,12 @@ export function useGenerate() {
     const documentId = crypto.randomUUID();
     const filesToSend = [...attachedFiles];
 
+    const totalSize = filesToSend.reduce((sum, f) => sum + f.file.size, 0);
+    if (totalSize > MAX_FILE_SIZE) {
+      setError('The total size of attached files is too large. Please use fewer or smaller files.');
+      return;
+    }
+
     const messageAttachments: MessageAttachment[] = filesToSend.map((f) => ({
       id: f.id,
       name: f.file.name,
@@ -156,6 +184,9 @@ export function useGenerate() {
       });
 
       if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error('Total attachment size is too large for the server. Please try with smaller files.');
+        }
         const json = await response.json().catch(() => ({}));
         throw new Error(json.error || `Request failed: ${response.status}`);
       }
