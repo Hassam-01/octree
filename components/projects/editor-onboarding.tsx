@@ -276,7 +276,7 @@ export function EditorOnboarding({ open: controlledOpen, onOpenChange }: EditorO
             >
               Back
             </Button>
-            <Button size="sm" onClick={handleNext}>
+            <Button variant="gradient" size="sm" onClick={handleNext}>
               {step === TOTAL_STEPS - 1 ? 'Get started' : 'Next'}
             </Button>
           </div>

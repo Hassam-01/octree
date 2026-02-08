@@ -28,7 +28,6 @@ import {
   ChevronDown,
   FileText,
   FolderArchive,
-  HelpCircle,
   Lock,
   MessageSquare,
   PanelRightClose,
@@ -53,7 +52,6 @@ interface EditorToolbarProps {
   onExportZIP: () => void;
   onOpenChat: () => void;
   onToggleChat: () => void;
-  onStartWalkthrough?: () => void;
   chatOpen: boolean;
   compiling: boolean;
   exporting: boolean;
@@ -69,7 +67,6 @@ export function EditorToolbar({
   onExportZIP,
   onOpenChat,
   onToggleChat,
-  onStartWalkthrough,
   chatOpen,
   compiling,
   exporting,
@@ -240,18 +237,6 @@ export function EditorToolbar({
         </div>
 
         <div className="flex items-center gap-2">
-          {onStartWalkthrough && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onStartWalkthrough}
-              className="gap-1"
-              title="Show walkthrough"
-            >
-              <HelpCircle className="size-4" />
-              <span className="hidden sm:inline">Tour</span>
-            </Button>
-          )}
           <UsageIndicator />
           {lastSaved && (
             <span className="text-sm text-slate-500">
