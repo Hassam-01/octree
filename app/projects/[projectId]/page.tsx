@@ -303,7 +303,6 @@ export default function ProjectPage() {
           setChatOpen(true);
         }}
         onToggleChat={() => setChatOpen(prev => !prev)}
-        onStartWalkthrough={() => setWalkthroughOpen(true)}
         chatOpen={chatOpen}
         compiling={compiling}
         exporting={exporting}
