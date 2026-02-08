@@ -34,7 +34,6 @@ import type { EditSuggestion } from '@/types/edit';
 import { isImageFile, isPDFFile, isTextFile } from '@/lib/constants/file-types';
 import { ImageViewer } from '@/components/image-viewer';
 import { SimplePDFViewer } from '@/components/simple-pdf-viewer';
-import { EditorOnboarding } from '@/components/projects/editor-onboarding';
 
 const CHAT_WIDTH_DEFAULT = 340;
 const CHAT_WIDTH_MIN = 280;
@@ -136,13 +135,7 @@ export default function ProjectPage() {
 
   const [chatWidth, setChatWidth] = useState(CHAT_WIDTH_DEFAULT);
   const [isChatResizing, setIsChatResizing] = useState(false);
-  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
 
-  useEffect(() => {
-    if (!localStorage.getItem('octree_editor_onboarding_completed')) {
-      setWalkthroughOpen(true);
-    }
-  }, []);
   const chatStartXRef = useRef(0);
   const chatStartWidthRef = useRef(0);
 
@@ -416,13 +409,6 @@ export default function ProjectPage() {
         </ResizablePanelGroup>
       </div>
 
-      <EditorOnboarding
-        open={walkthroughOpen}
-        onOpenChange={(open) => {
-          setWalkthroughOpen(open);
-          if (!open) localStorage.setItem('octree_editor_onboarding_completed', 'true');
-        }}
-      />
       <div
         className={cn(
           'fixed inset-y-0 right-0 z-20 border-l border-slate-200 bg-white',
