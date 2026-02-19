@@ -57,7 +57,7 @@ function StepIndicator({ status }: { status: StepStatus }) {
   if (status === 'pending') {
     return (
       <span
-        className="bg-card border-border flex size-6 shrink-0 items-center justify-center rounded-full border motion-safe:transition-all motion-safe:duration-200"
+        className="bg-card border-border flex size-4 shrink-0 items-center justify-center rounded-full border motion-safe:transition-all motion-safe:duration-200"
         aria-hidden="true"
       />
     );
@@ -66,10 +66,10 @@ function StepIndicator({ status }: { status: StepStatus }) {
   if (status === 'in-progress') {
     return (
       <span
-        className="bg-card border-border flex size-6 shrink-0 items-center justify-center rounded-full border shadow-[0_0_0_4px_hsl(var(--primary)/0.1)] motion-safe:transition-all motion-safe:duration-300"
+        className="bg-card border-border flex size-4 shrink-0 items-center justify-center rounded-full border shadow-[0_0_0_3px_hsl(var(--primary)/0.1)] motion-safe:transition-all motion-safe:duration-300"
         aria-hidden="true"
       >
-        <Loader2 className="text-primary size-5 motion-safe:animate-spin" />
+        <Loader2 className="text-primary size-3.5 motion-safe:animate-spin" />
       </span>
     );
   }
@@ -77,11 +77,11 @@ function StepIndicator({ status }: { status: StepStatus }) {
   // completed
   return (
     <span
-      className="bg-gradient-to-t from-primary to-primary/85 text-primary-foreground border border-zinc-950/25 shadow-md shadow-zinc-950/20 ring-1 ring-inset ring-white/20 dark:border-white/20 dark:ring-transparent flex size-6 shrink-0 items-center justify-center rounded-full motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-300 motion-safe:ease-out"
+      className="bg-gradient-to-t from-primary to-primary/85 text-primary-foreground border border-zinc-950/25 shadow-md shadow-zinc-950/20 ring-1 ring-inset ring-white/20 dark:border-white/20 dark:ring-transparent flex size-4 shrink-0 items-center justify-center rounded-full motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-300 motion-safe:ease-out"
       aria-hidden="true"
     >
       <Check
-        className="size-4 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:delay-75 motion-safe:duration-200 motion-safe:fill-mode-both"
+        className="size-2.5 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:delay-75 motion-safe:duration-200 motion-safe:fill-mode-both"
         strokeWidth={3}
       />
     </span>
@@ -113,8 +113,8 @@ function formatElapsedTimeDateTime(milliseconds: number): string {
 function ElapsedTimeBadge({ elapsedTime }: { elapsedTime: number }) {
   if (elapsedTime <= 0) return null;
   return (
-    <div className="text-muted-foreground flex items-center gap-1.5 font-mono text-xs">
-      <Timer className="-mt-px size-3.5" />
+    <div className="text-muted-foreground flex items-center gap-1 font-mono text-[11px]">
+      <Timer className="-mt-px size-3" />
       <time dateTime={formatElapsedTimeDateTime(elapsedTime)}>
         {formatElapsedTime(elapsedTime)}
       </time>
@@ -183,8 +183,8 @@ export function GenerationProgressTracker({
               {/* Vertical connector line from this step to the next */}
               {index < STEPS.length - 1 && (
                 <div
-                  className="bg-border absolute top-6 left-3 w-px motion-safe:transition-all motion-safe:duration-300"
-                  style={{ height: 'calc(100% - 1.5rem)' }}
+                  className="bg-border absolute top-4 left-[7px] w-px motion-safe:transition-all motion-safe:duration-300"
+                  style={{ height: 'calc(100% - 1rem)' }}
                   aria-hidden="true"
                 />
               )}
@@ -192,7 +192,7 @@ export function GenerationProgressTracker({
               {/* Step header row */}
               <div
                 className={cn(
-                  'relative z-10 flex items-center gap-3 py-1.5',
+                  'relative z-10 flex items-center gap-2 py-1',
                   'motion-safe:transition-all motion-safe:duration-300',
                 )}
               >
@@ -201,7 +201,7 @@ export function GenerationProgressTracker({
                 </div>
                 <span
                   className={cn(
-                    'text-sm leading-6 font-medium',
+                    'text-xs leading-5 font-medium',
                     status === 'pending' && 'text-muted-foreground',
                   )}
                 >
@@ -214,7 +214,7 @@ export function GenerationProgressTracker({
 
               {/* Children slot — Monaco editor nests inside "Generating" step */}
               {showChildren && (
-                <div className="relative z-10 mt-2 ml-3 border-l border-border pl-5 pb-2">
+                <div className="relative z-10 mt-1.5 ml-2 border-l border-border pl-4 pb-1.5">
                   {children}
                 </div>
               )}
@@ -225,10 +225,10 @@ export function GenerationProgressTracker({
 
       {/* Tip — only show during thinking phase (no content yet) */}
       {!children && (
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-3 flex flex-col gap-2">
           <div className="bg-border h-px" />
           <p
-            className="text-center text-xs leading-relaxed text-muted-foreground transition-opacity duration-300"
+            className="text-center text-[11px] leading-relaxed text-muted-foreground transition-opacity duration-300"
             style={{ opacity: tipVisible ? 1 : 0 }}
           >
             <span className="mr-1">💡</span>
